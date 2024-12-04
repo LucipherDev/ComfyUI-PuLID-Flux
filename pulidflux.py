@@ -6,8 +6,8 @@ from torchvision.transforms import functional
 import os
 import logging
 import folder_paths
-import comfy.utils
-from comfy.ldm.flux.layers import timestep_embedding
+import totoro.utils
+from totoro.ldm.flux.layers import timestep_embedding
 from insightface.app import FaceAnalysis
 from facexlib.parsing import init_parsing_model
 from facexlib.utils.face_restoration_helper import FaceRestoreHelper
@@ -45,7 +45,7 @@ class PulidFluxModel(nn.Module):
         ])
 
     def from_pretrained(self, path: str):
-        state_dict = comfy.utils.load_torch_file(path, safe_load=True)
+        state_dict = totoro.utils.load_torch_file(path, safe_load=True)
         state_dict_dict = {}
         for k, v in state_dict.items():
             module = k.split('.')[0]
@@ -255,14 +255,14 @@ class ApplyPulidFlux:
         self.pulid_data_dict = None
 
     def apply_pulid_flux(self, model, pulid_flux, eva_clip, face_analysis, image, weight, start_at, end_at, attn_mask=None, unique_id=None):
-        device = comfy.model_management.get_torch_device()
+        device = totoro.model_management.get_torch_device()
         # Why should I care what args say, when the unet model has a different dtype?!
         # Am I missing something?!
-        #dtype = comfy.model_management.unet_dtype()
+        #dtype = totoro.model_management.unet_dtype()
         dtype = model.model.diffusion_model.dtype
         # Because of 8bit models we must check what cast type does the unet uses
         # ZLUDA (Intel, AMD) & GPUs with compute capability < 8.0 don't support bfloat16 etc.
-        # Issue: https://github.com/balazik/ComfyUI-PuLID-Flux/issues/6
+        # Issue: https://github.com/balazik/TotoroUI-PuLID-Flux/issues/6
         if model.model.manual_cast_dtype is not None:
             dtype = model.model.manual_cast_dtype
 
